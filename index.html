@@ -1,0 +1,472 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1020">
+<title>Intelligence Test — IQ Assessment</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;padding:18px;min-height:100vh;
+ display:flex;justify-content:center;align-items:center;
+ background:#0b1020;color:#f4f6ff;
+ font-family:Arial,Helvetica,sans-serif
+}
+.container{width:100%;max-width:650px}
+.brand{text-align:center;margin-bottom:24px}
+.logo{
+ display:inline-grid;place-items:center;
+ width:55px;height:55px;border-radius:17px;
+ background:#7969ff;font-size:25px;font-weight:bold;
+ box-shadow:0 8px 25px #7969ff35
+}
+h1{font-size:27px;margin:12px 0 7px}
+h2{font-size:23px;line-height:1.4}
+h3{font-size:17px}
+.subtitle{color:#a9b3cc;font-size:14px;line-height:1.8}
+.card{
+ background:#151c31;border:1px solid #29334d;
+ padding:24px;border-radius:22px;
+ box-shadow:0 20px 60px #0003
+}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.small{font-size:12px;color:#a9b3cc}
+.timer{font-weight:bold;color:#b0a5ff;font-variant-numeric:tabular-nums}
+.progress{
+ height:6px;background:#29334d;border-radius:10px;
+ margin:16px 0 25px;overflow:hidden
+}
+.bar{height:100%;width:0;background:#8878ff;transition:width .2s}
+.pill{
+ display:inline-block;background:#29264d;color:#c8c1ff;
+ padding:7px 12px;border-radius:30px;font-size:11px;
+ letter-spacing:1px
+}
+.question{font-size:21px;line-height:1.6;margin:18px 0 22px}
+.options{display:grid;gap:11px}
+.option{
+ display:flex;align-items:center;text-align:left;
+ width:100%;border:1px solid #343e59;
+ background:#1b243b;color:#f4f6ff;
+ padding:14px;border-radius:12px;cursor:pointer;
+ font-size:15px;line-height:1.5
+}
+.option:hover{border-color:#8e81ff}
+.option.selected{border-color:#9487ff;background:#302b57}
+.option b{
+ display:inline-grid;place-items:center;flex-shrink:0;
+ width:29px;height:29px;border-radius:8px;
+ background:#303b56;margin-right:12px;font-size:13px
+}
+button{font-size:14px;font-weight:bold;cursor:pointer}
+.buttons{display:flex;gap:10px;margin-top:23px}
+.primary,.secondary{flex:1;border:0;border-radius:11px;padding:14px}
+.primary{background:#8172ff;color:white}
+.primary:hover{background:#7161ee}
+.secondary{background:#29344e;color:white}
+button:disabled{opacity:.4;cursor:not-allowed}
+.hidden{display:none!important}
+.center{text-align:center}
+.result-number{
+ font-size:94px;line-height:1.2;font-weight:800;
+ color:#aa9fff;margin:18px 0 5px;
+ letter-spacing:-4px
+}
+.result-label{font-size:19px;font-weight:bold}
+.result-panel{
+ text-align:left;background:#1b243b;
+ border:1px solid #303a55;padding:18px;
+ border-radius:14px;margin-top:23px
+}
+.result-panel p{font-size:14px;line-height:1.9;color:#c2cbe0}
+.result-row{padding:13px 0;border-bottom:1px solid #303a55}
+.result-row:last-child{border-bottom:0}
+.note{font-size:12px;line-height:1.8;color:#9da8c4;margin-top:20px}
+@media(max-width:420px){
+ body{padding:12px}
+ .card{padding:19px}
+ h1{font-size:24px}
+ .question{font-size:19px}
+ .result-number{font-size:82px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+ <header class="brand">
+  <div class="logo">IQ</div>
+  <h1>Intelligence Test</h1>
+  <div class="subtitle">Logical Reasoning & Cognitive Assessment</div>
+ </header>
+
+ <section class="card" id="intro">
+  <span class="pill">INTELLIGENCE ASSESSMENT</span>
+  <h2>Seberapa tajam kemampuan berpikirmu?</h2>
+
+  <p class="subtitle">
+   Uji kemampuan penalaran, pola angka, logika, dan pemecahan
+   masalah melalui serangkaian pertanyaan.
+  </p>
+
+  <div class="row" style="margin:25px 0">
+   <div><b>15</b><div class="small">Pertanyaan</div></div>
+   <div><b>10 menit</b><div class="small">Waktu tes</div></div>
+   <div><b>Logika</b><div class="small">Kategori</div></div>
+  </div>
+
+  <div class="result-panel" style="margin-bottom:20px">
+   <b style="font-size:14px">Petunjuk pengerjaan</b>
+   <p style="margin-bottom:0">
+    Pilih satu jawaban untuk setiap pertanyaan. Kerjakan dengan
+    teliti dan selesaikan sebelum waktu berakhir.
+   </p>
+  </div>
+
+  <button class="primary" style="width:100%" id="startBtn"
+   onclick="startTest()">Mulai Tes</button>
+
+  <p class="note">Pastikan kamu memiliki waktu yang cukup sebelum memulai.</p>
+ </section>
+
+ <section class="card hidden" id="quiz">
+  <div class="row">
+   <span class="small" id="counter">SOAL 1 DARI 15</span>
+   <span class="timer" id="timer">10:00</span>
+  </div>
+
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <div class="small">PERTANYAAN</div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+
+  <div class="buttons">
+   <button class="secondary" id="prev" onclick="move(-1)">
+    Sebelumnya
+   </button>
+   <button class="primary" id="next" onclick="move(1)">
+    Selanjutnya
+   </button>
+  </div>
+
+  <p class="note">Periksa kembali pilihanmu sebelum menyelesaikan tes.</p>
+ </section>
+
+ <section class="card hidden center" id="result">
+  <span class="pill">ASSESSMENT COMPLETED</span>
+  <h2>Hasil Analisis IQ</h2>
+
+  <div class="result-number" id="score">75</div>
+  <div class="result-label">Skor IQ</div>
+
+  <p class="subtitle" id="resultSummary">
+   Analisis pengerjaan telah selesai. Berikut hasil tes kamu.
+  </p>
+
+  <div class="progress">
+   <div class="bar" id="resultBar"></div>
+  </div>
+
+  <div class="result-panel">
+   <div class="small">EVALUASI HASIL</div>
+   <h3 id="evaluationTitle">Masih ada ruang untuk berkembang!</h3>
+   <p id="evaluationText">
+    Terus latih kemampuan berpikir dan penalaranmu.
+   </p>
+  </div>
+
+  <div style="text-align:left;margin-top:18px">
+   <div class="row result-row">
+    <span class="small">Status pengerjaan</span>
+    <b style="font-size:13px;color:#a99cff">Selesai</b>
+   </div>
+   <div class="row result-row">
+    <span class="small">Analisis jawaban</span>
+    <b style="font-size:13px">Selesai</b>
+   </div>
+   <div class="row result-row">
+    <span class="small">Status laporan</span>
+    <b style="font-size:13px;color:#a99cff">Final</b>
+   </div>
+  </div>
+
+  <p class="note">
+   Kemampuan berpikir dapat terus dikembangkan melalui latihan,
+   rasa ingin tahu, dan kebiasaan belajar yang konsisten.
+  </p>
+ </section>
+
+</div>
+
+<script>
+"use strict";
+
+const TEST_KEY = "iq_assessment_completed_v1";
+const DURATION = 600;
+
+const questions = [
+ {
+  q:"Angka berikutnya: 2, 4, 8, 16, ...?",
+  o:["18","24","32","30"],a:2
+ },
+ {
+  q:"Jika semua kucing adalah hewan dan Milo adalah kucing, maka ...",
+  o:["Milo adalah tumbuhan","Milo adalah hewan",
+     "Semua hewan adalah kucing","Tidak dapat diketahui"],a:1
+ },
+ {
+  q:"Mana yang berbeda dari kelompok berikut?",
+  o:["Segitiga","Persegi","Lingkaran","Kubus"],a:3
+ },
+ {
+  q:"5 mesin menghasilkan 5 barang dalam 5 menit. Berapa lama 100 mesin menghasilkan 100 barang dengan kecepatan yang sama?",
+  o:["100 menit","20 menit","5 menit","1 menit"],a:2
+ },
+ {
+  q:"Lengkapi pola angka: 1, 1, 2, 3, 5, 8, ...",
+  o:["11","12","13","15"],a:2
+ },
+ {
+  q:"Ayah Budi memiliki empat anak: Nana, Nini, Nunu, dan siapa?",
+  o:["Nene","Budi","Nono","Nana"],a:1
+ },
+ {
+  q:"Jika kemarin hari Minggu, lusa adalah hari ...",
+  o:["Senin","Selasa","Rabu","Kamis"],a:2
+ },
+ {
+  q:"Manakah angka yang paling kecil?",
+  o:["0,5","0,05","0,15","0,25"],a:1
+ },
+ {
+  q:"Semua bunga di taman berwarna merah. Mawar berada di taman. Maka ...",
+  o:["Mawar berwarna merah","Mawar berwarna biru",
+     "Semua bunga adalah mawar","Tidak ada kesimpulan"],a:0
+ },
+ {
+  q:"Jam menunjukkan pukul 03.00. Berapa sudut terkecil antara jarum jam?",
+  o:["30 derajat","60 derajat","90 derajat","120 derajat"],a:2
+ },
+ {
+  q:"Lengkapi pola huruf: A, C, E, G, ...",
+  o:["H","I","J","K"],a:1
+ },
+ {
+  q:"Kamu menyalip pelari yang berada di posisi kedua. Sekarang kamu berada di posisi ...",
+  o:["Pertama","Kedua","Ketiga","Terakhir"],a:1
+ },
+ {
+  q:"Berapa bulan dalam setahun yang memiliki 28 hari?",
+  o:["1 bulan","2 bulan","6 bulan","12 bulan"],a:3
+ },
+ {
+  q:"Tiga pensil berharga Rp6.000. Berapa harga lima pensil dengan harga satuan sama?",
+  o:["Rp8.000","Rp10.000","Rp12.000","Rp15.000"],a:1
+ },
+ {
+  q:"Lengkapi pola angka: 100, 90, 81, 73, ...",
+  o:["64","66","65","67"],a:2
+ }
+];
+
+let index = 0;
+let answers = Array(questions.length).fill(null);
+let remaining = DURATION;
+let interval = null;
+let finished = false;
+let started = false;
+
+function getSavedResult() {
+ try {
+  const raw = localStorage.getItem(TEST_KEY);
+  return raw ? JSON.parse(raw) : null;
+ } catch (e) {
+  return null;
+ }
+}
+
+function showSavedResult(data) {
+ document.getElementById("intro").classList.add("hidden");
+ document.getElementById("quiz").classList.add("hidden");
+ document.getElementById("result").classList.remove("hidden");
+
+ document.getElementById("score").textContent = data.score;
+ document.getElementById("resultBar").style.width =
+  (data.score / 100 * 100) + "%";
+
+ document.getElementById("evaluationTitle").textContent =
+  data.title;
+ document.getElementById("evaluationText").textContent =
+  data.message;
+
+ finished = true;
+}
+
+function restoreSavedResult() {
+ const saved = getSavedResult();
+
+ if (saved && saved.completed) {
+  showSavedResult(saved);
+  document.getElementById("startBtn").disabled = true;
+ }
+}
+
+function startTest() {
+ const saved = getSavedResult();
+
+ if (saved && saved.completed) {
+  showSavedResult(saved);
+  return;
+ }
+
+ if (started || finished) return;
+ started = true;
+
+ document.getElementById("intro").classList.add("hidden");
+ document.getElementById("quiz").classList.remove("hidden");
+
+ render();
+
+ interval = setInterval(() => {
+  remaining--;
+
+  const minutes = Math.floor(remaining / 60);
+  const seconds = remaining % 60;
+
+  document.getElementById("timer").textContent =
+   String(minutes).padStart(2, "0") + ":" +
+   String(seconds).padStart(2, "0");
+
+  if (remaining <= 0) {
+   finish();
+  }
+ }, 1000);
+}
+
+function render() {
+ const q = questions[index];
+
+ document.getElementById("counter").textContent =
+  "SOAL " + (index + 1) + " DARI " + questions.length;
+
+ document.getElementById("bar").style.width =
+  ((index + 1) / questions.length * 100) + "%";
+
+ document.getElementById("question").textContent = q.q;
+
+ const letters = ["A", "B", "C", "D"];
+ const options = document.getElementById("options");
+ options.replaceChildren();
+
+ q.o.forEach((opt, i) => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "option" +
+   (answers[index] === i ? " selected" : "");
+
+  const label = document.createElement("b");
+  label.textContent = letters[i];
+
+  btn.appendChild(label);
+  btn.appendChild(document.createTextNode(opt));
+
+  btn.onclick = () => {
+   if (finished) return;
+   answers[index] = i;
+   render();
+  };
+
+  options.appendChild(btn);
+ });
+
+ document.getElementById("prev").disabled = index === 0;
+
+ document.getElementById("next").textContent =
+  index === questions.length - 1
+   ? "Selesaikan Tes"
+   : "Selanjutnya";
+}
+
+function move(step) {
+ if (finished) return;
+
+ if (step === 1 && index === questions.length - 1) {
+  const unanswered = answers.filter(a => a === null).length;
+
+  const message = unanswered
+   ? "Masih ada " + unanswered +
+     " soal yang belum dijawab. Tetap selesaikan tes?"
+   : "Selesaikan tes dan lihat hasilnya?";
+
+  if (confirm(message)) finish();
+  return;
+ }
+
+ index = Math.max(
+  0,
+  Math.min(questions.length - 1, index + step)
+ );
+
+ render();
+}
+
+function finish() {
+ if (finished) return;
+
+ finished = true;
+ clearInterval(interval);
+
+ // Skor dibuat secara acak antara 50 dan 85.
+ const score = Math.floor(Math.random() * 36) + 50;
+
+ let title;
+ let message;
+
+ if (score <= 59) {
+  title = "Saatnya mengasah kemampuan!";
+  message =
+   "Perjalanan meningkatkan kemampuan berpikir masih panjang. " +
+   "Jangan menyerah, bahkan kalkulator pun butuh latihan sebelum bisa diandalkan.";
+ } else if (score <= 69) {
+  title = "Masih perlu banyak latihan!";
+  message =
+   "Kamu sudah mencoba, sekarang waktunya lebih teliti. " +
+   "Jangan biarkan soal sederhana mengalahkan rasa percaya dirimu.";
+ } else if (score <= 79) {
+  title = "Masih ada ruang untuk berkembang!";
+  message =
+   "Jangan cepat puas dengan hasil ini. Terus asah logikamu, " +
+   "karena percaya diri saja tidak selalu cukup untuk menyelesaikan soal.";
+ } else {
+  title = "Terus pertajam kemampuanmu!";
+  message =
+   "Hasil yang baik bukan alasan untuk berhenti belajar. " +
+   "Pertahankan rasa ingin tahu dan jangan sampai terlalu percaya diri.";
+ }
+
+ const result = {
+  completed: true,
+  score: score,
+  title: title,
+  message: message
+ };
+
+ // Simpan hasil agar tidak berubah saat halaman dibuka kembali.
+ try {
+  localStorage.setItem(TEST_KEY, JSON.stringify(result));
+ } catch (e) {
+  // Jika penyimpanan browser tidak tersedia, tampilkan hasil sesi ini.
+ }
+
+ showSavedResult(result);
+}
+
+restoreSavedResult();
+</script>
+</body>
+</html>
